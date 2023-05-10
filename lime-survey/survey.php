@@ -8,17 +8,10 @@
  */
 
 class LimeSurveyPlugin extends Plugin {
-    var $config_class = 'LimeSurveyPluginConfig';
+    var $config_class = 'LimeSurveyConfig';
 
-    // function bootstrap() {
-    //     $config = $this->getConfig();
-    //     $uploadpath = $config->get('uploadpath');
-    //     list($__, $_N) = $config::translate();
-    //     if ($uploadpath) {
-    //         FileStorageBackend::register('F', 'FilesystemStorage');
-    //         FilesystemStorage::$base = $uploadpath;
-    //         FilesystemStorage::$desc = $__('Filesystem') .': '.$uploadpath;
-    //     }
-    // }
+    function bootstrap() {
+        $config = $this->getConfig();
+    }
 }
 
