@@ -1,5 +1,4 @@
 <?php
-
 return array(
     'id' =>             'limesurvey:survey', # notrans
     'version' =>        '0.1',
@@ -7,7 +6,15 @@ return array(
     'author' =>         'Raul Suarez',
     'description' =>    /* trans */ 'Enables sending surveys to ticket users when those are closed',
     'url' =>            'https://github.com/raulnsuarez/osTicket-plugins',
-    'plugin' =>         'survey.php:LimeSurveyPlugin'
+    'plugin' =>         'survey.php:LimeSurveyPlugin',
+    'requires' => array(
+        "weberhofer/jsonrpcphp" => array(
+            "version" => "~2",
+            "map" => array(
+                "weberhofer/jsonrpcphp/src/" => 'lib/jsonRPCphp'
+            ),
+        ),
+    ),
 );
 
 ?>
