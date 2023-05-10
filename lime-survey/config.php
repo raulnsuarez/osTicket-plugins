@@ -8,15 +8,15 @@ class LimeSurveyConfig extends PluginConfig {
 
     // Provide compatibility function for versions of osTicket prior to
     // translation support (v1.9.4)
-    // function translate() {
-    //     if (!method_exists('Plugin', 'translate')) {
-    //         return array(
-    //             function($x) { return $x; },
-    //             function($x, $y, $n) { return $n != 1 ? $y : $x; },
-    //         );
-    //     }
-    //     return Plugin::translate('lime-survey');
-    // }
+    function translate() {
+        if (!method_exists('Plugin', 'translate')) {
+            return array(
+                function($x) { return $x; },
+                function($x, $y, $n) { return $n != 1 ? $y : $x; },
+            );
+        }
+        return Plugin::translate('lime-survey');
+    }
 
     public function getServer() {
         return $this->get('domain');
@@ -30,13 +30,7 @@ class LimeSurveyConfig extends PluginConfig {
         return $this->get('passwd');
     }
 
-    public function getScopes() {
-        return array_map('trim',
-                explode(',', $this->get('scopes', [])));
-    }
-
     public function getServerSettings() {
-        $scopes =  $this->getScopes();
         $settings = [
             'domain'       => $this->getServer(),
             'user'   => $this->getUser(),
@@ -44,14 +38,11 @@ class LimeSurveyConfig extends PluginConfig {
             'scopes' => $scopes,
         ];
 
-        if ($scopes && count($scopes) > 1)
-        $settings['scopeSeparator'] = ',';
-
         return $settings;
     }
 
     function getAllOptions() {
-        // list($__, $_N) = self::translate();
+        list($__, $_N) = self::translate();
         return array(
             'lss' => new SectionBreakField(array(
                 'label' => 'LimeSurvey® Settings',
