@@ -22,6 +22,10 @@ class LimeSurveyConfig extends PluginConfig {
         return $this->get('domain');
     }
 
+    public function getSurveyID() {
+        return $this->get('surveyid');
+    }
+
     public function getUser() {
         return $this->get('user');
     }
@@ -32,7 +36,8 @@ class LimeSurveyConfig extends PluginConfig {
 
     public function getServerSettings() {
         $settings = [
-            'domain'       => $this->getServer(),
+            'domain'   => $this->getServer(),
+            'surveyid'   => $this->getSurveyID(),
             'user'   => $this->getUser(),
             'passwd'    => $this->getPasswd(),
             'scopes' => $scopes,
@@ -59,9 +64,14 @@ class LimeSurveyConfig extends PluginConfig {
                             $__('Domain name is expected'));
                 }),
             )),
+            'surveyid' => new TextboxField(array(
+                'label' => $__('Survey ID'),
+                'hint' => $__('ID of the Active Survey'),
+                'configuration' => array('size'=>40, 'length'=>120),
+            )),
             'user' => new TextboxField(array(
-                'label' => $__('User'),
-                'hint' => $__('User for use in the connection to the Lime Survey Server'),
+                'label' => $__('Username'),
+                'hint' => $__('Username for the authentication'),
                 'configuration' => array('size'=>40, 'length'=>120),
             )),
             'passwd' => new TextboxField(array(
