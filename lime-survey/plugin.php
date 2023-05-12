@@ -1,6 +1,6 @@
 <?php
 return array(
-    'id' =>             'limesurvey:survey', # notrans
+    'id' =>             'limesurvey', # notrans
     'version' =>        '0.1',
     'name' =>           /* trans */ 'Automatic Surveys for Tickets',
     'author' =>         'Raul Suarez',

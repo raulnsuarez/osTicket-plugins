@@ -315,12 +315,14 @@ class LimeSurveyConfig extends PluginConfig {
                 $__("No Survey ID specified."));
 
         if ($config['domain'] && $config['user'] && $config['passwd'] && $config['surveyid']) {
-            $testJSONRPCClient = new JsonRPCClient( $config['domain'] );
+            $testJSONRPCClient = new JsonRPCClient( $config['domain'].'/index.php/admin/remotecontrol' );
             $sessionKey = $testJSONRPCClient->get_session_key( $config['user'], $config['passwd'] );
             if (is_array($sessionKey)){
                 if ($sessionKey['status']){
                     $connection_error = $sessionKey['status'];
                 }
+            }else{
+                $testJSONRPCClient->release_session_key( $sessionKey );
             }
         }
         else {
