@@ -232,7 +232,7 @@ class LimeSurveyConfig extends PluginConfig {
                 function($x, $y, $n) { return $n != 1 ? $y : $x; },
             );
         }
-        return Plugin::translate('limesurvey');
+        return Plugin::translate('lime-survey');
     }
 
     public function getServer() {

@@ -1,6 +1,7 @@
 <?php
 
 require_once(INCLUDE_DIR . 'class.plugin.php');
+require_once(INCLUDE_DIR.'/class.ticket.php');
 require_once('config.php');
 
 // class EnrollInSurvey extends Ticket {
@@ -49,21 +50,9 @@ class LimeSurveyPlugin extends Plugin {
     var $config_class = 'LimeSurveyConfig';
 
     function bootstrap() {
-        // Hook into the 'setStatus' event
-        Dispatcher::getInstance()->register(
-            'ticket.setStatus',
-            array($this, 'onTicketStatusChange')
-        );
+        //..
     }
-
-    function onTicketStatusChange($ticket, $oldStatus, $newStatus, $user) {
-        // Check if the new status is 'closed'
-        if ($newStatus == TicketStatus::CLOSED) {
-            // Call the 'enrollment' function
-            $this->enrrollTicketRequesterInLimeSurvey($ticket);
-        }
-    }
-
+    
     public function enrrollTicketRequesterInLimeSurvey($ticket) {
         // Get the LimeSurvey API endpoint URL and API key from your configuration
         $server = $this->getConfig()->getServerSettings();
@@ -99,6 +88,6 @@ class LimeSurveyPlugin extends Plugin {
         // Release the LimeSurvey API session key
         $client->release_session_key($sessionKey);
     }
-};
+}
 
 ?>
