@@ -9,10 +9,6 @@ require_once (INCLUDE_DIR . 'class.osticket.php');
 require_once(INCLUDE_DIR . 'class.ticket.php');
 require_once('config.php');
 
-class EnrollInSurvey extends Ticket {
-
-}
-
 class LimeSurveyPlugin extends Plugin {
     var $config_class = 'LimeSurveyConfig';
 
@@ -29,23 +25,25 @@ class LimeSurveyPlugin extends Plugin {
         $sessionKey = $client->get_session_key($username, $password);
 
         // Add the ticket requester as a participant in the survey
-        // $participants = array(
-        //     'email' => $ticket->getEmail(),
-        //     'firstname' => $ticket->getName(),
-        //     'lastname' => 'Second'
-        // );
+        $ticket_email = $ticket->getEmail();
+        $ticket_name = $ticket->getName();
         $participants = array(
-            "email"=>"raulnsuarez@gmail.com",
-            "lastname"=>"Suarez",
-            "firstname"=>"Raul"
+            'email' => 'aaa@sd.com',
+            'firstname' => $ticket_name,
+            'lastname' => 'Second'
         );
-        $result = $client->add_participants($sessionKey, $survey, array($participants));
+        // $participants = array(
+        //     "email"=>"raulnsuarez@gmail.com",
+        //     "lastname"=>"Suarez",
+        //     "firstname"=>"Raul"
+        // );
+        $result = $client->add_participants($sessionKey, $survey, array($participants), array('id'=>1));
         if ($result === null) {
             // An error occurred while adding the participant
             //$ticket->logError('Failed to enroll ticket requester in LimeSurvey');
         }else{
             // Save the survey response ID in the ticket metadata
-            //$ticket->addNote("LimeSurvey response ID: $result");
+            //$ticket->postNote(array('note'=>"LimeSurvey response ID: ". $result, 'title'=>'User enrrolled in Survey', array(), $ticket->getStaff()));
             //$ticket->logError('Successfully enrolled ticket requester in LimeSurvey');
         }
 
@@ -55,7 +53,8 @@ class LimeSurveyPlugin extends Plugin {
 
     function bootstrap() {
         global  $config;
-        Signal::connect('ticket.created', function($ticket, &$extras){ 
+        $config = $this->getConfig();
+        Signal::connect('ticket.created', function($ticket, &$extras){
             $this->enrrollTicketRequesterInLimeSurvey($ticket);
         });
     }
