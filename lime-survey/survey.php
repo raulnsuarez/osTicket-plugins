@@ -16,21 +16,17 @@ class EnrollInSurvey extends Ticket {
 class LimeSurveyPlugin extends Plugin {
     var $config_class = 'LimeSurveyConfig';
 
-    function bootstrap() {
-        $config = $this->getConfig();
-        $server = $config->getServerSettings();
-        Signal::connect('ticket.created', function($ticket){ 
-            $this->enrrollTicketRequesterInLimeSurvey($server);
-        });
-    }
-    
-    function enrrollTicketRequesterInLimeSurvey($server) {       
+    function enrrollTicketRequesterInLimeSurvey($ticket) {
+        // Get config
+        global $config;
+        $server = $config->getServer();
+        $username = $config->getUser();
+        $password = $config->getPasswd();
+        $survey = $config->getSurveyID();
+        
         // Create a JsonRPCClient object to connect to LimeSurvey API
-        $client = new JsonRPCClient($server['domain'].'/index.php/admin/remotecontrol');
-        $sessionKey = $client->get_session_key($server['user'], $server['passwd']);
-
-        // Retrieve the survey ID from configuration
-        $surveyId = $server['surveyid'];
+        $client = new JsonRPCClient($server.'/index.php/admin/remotecontrol');
+        $sessionKey = $client->get_session_key($username, $password);
 
         // Add the ticket requester as a participant in the survey
         // $participants = array(
@@ -43,7 +39,7 @@ class LimeSurveyPlugin extends Plugin {
             "lastname"=>"Suarez",
             "firstname"=>"Raul"
         );
-        $result = $client->add_participants($sessionKey, $surveyId, array($participants));
+        $result = $client->add_participants($sessionKey, $survey, array($participants));
         if ($result === null) {
             // An error occurred while adding the participant
             //$ticket->logError('Failed to enroll ticket requester in LimeSurvey');
@@ -55,6 +51,13 @@ class LimeSurveyPlugin extends Plugin {
 
         // Release the LimeSurvey API session key
         $client->release_session_key($sessionKey);
+    }
+
+    function bootstrap() {
+        global  $config;
+        Signal::connect('ticket.created', function($ticket, &$extras){ 
+            $this->enrrollTicketRequesterInLimeSurvey($ticket);
+        });
     }
 }
 
