@@ -9,6 +9,19 @@ require_once (INCLUDE_DIR . 'class.osticket.php');
 require_once(INCLUDE_DIR . 'class.ticket.php');
 require_once('config.php');
 
+class ClosedTicketSignal extends Ticket {
+    public function setStatus() {
+        // Adding Signal close at the end of the closed tickets
+        switch ($status->getState()) {
+            case 'closed':
+                if ($this->isClosed()){
+                    throw new Exception(var_export($this->getId(), true));
+                }
+            }
+    }
+}
+
+
 class LimeSurveyPlugin extends Plugin {
     var $config_class = 'LimeSurveyConfig';
     const PLUGIN_NAME = 'Automatic Surveys for Tickets';
@@ -46,6 +59,28 @@ class LimeSurveyPlugin extends Plugin {
         global  $config;
         global $ticket;
         $config = $this->getConfig();
+
+        Signal::connect('ticket.closed', function($ticket){
+            global $config;
+            // Add the ticket requester as a participant in the survey
+            $email = $ticket->getEmail()->getEmail();
+            $name = $ticket->getName();
+            $firstname = $name->getFirst();
+            $lastname = $name->getLast();
+            //throw new Exception(var_export($email, true));
+            $result = $this->enrrollTicketRequesterInLimeSurvey($email, $firstname, $lastname);
+
+            if ($result){
+                // Save the survey response ID in the ticket metadata
+                $ticket->LogNote(__('Enrolled in Survey with email: '. $email),__('Successfully enrolled ticket requester in LimeSurvey #'. $config->getSurveyID()), self::PLUGIN_NAME, FALSE );
+            }else{
+                // An error occurred while adding the participant
+                $ticket->LogNote(__('Error in survey enrollment process for email: '. $email),__('Failed to enroll ticket requester in LimeSurvey #'. $config->getSurveyID()), self::PLUGIN_NAME, FALSE );
+            }
+
+        });
+
+
         Signal::connect('ticket.created', function($ticket){
             global $config;
             // Add the ticket requester as a participant in the survey
