@@ -12,6 +12,7 @@ require_once('config.php');
 class LimeSurveyPlugin extends Plugin {
     var $config_class = 'LimeSurveyConfig';
     const PLUGIN_NAME = 'Automatic Surveys for Tickets';
+
     function enrrollTicketRequesterInLimeSurvey($email, $firstname, $lastname) {
         // Get config
         global $config;
