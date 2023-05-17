@@ -6,18 +6,14 @@ require_once (INCLUDE_DIR . 'class.app.php');
 require_once (INCLUDE_DIR . 'class.dispatcher.php');
 require_once (INCLUDE_DIR . 'class.dynamic_forms.php');
 require_once (INCLUDE_DIR . 'class.osticket.php');
-require_once(INCLUDE_DIR . 'class.ticket.php');
-require_once('config.php');
+require_once (INCLUDE_DIR . 'class.ticket.php');
+require_once ('jsonRPC.php');
+require_once ('config.php');
 
 class ClosedTicketSignal extends Ticket {
-    public function setStatus() {
-        // Adding Signal close at the end of the closed tickets
-        switch ($status->getState()) {
-            case 'closed':
-                if ($this->isClosed()){
-                    throw new Exception(var_export($this->getId(), true));
-                }
-            }
+    function setStatus($status, $comments='', &$errors=array(), $set_closing_agent=true, $force_close = false) {
+        //Adding Signal close at the end of the closed tickets
+        throw new Exception(var_export($this->getId(), true));
     }
 }
 
@@ -26,7 +22,7 @@ class LimeSurveyPlugin extends Plugin {
     var $config_class = 'LimeSurveyConfig';
     const PLUGIN_NAME = 'Automatic Surveys for Tickets';
 
-    function enrrollTicketRequesterInLimeSurvey($email, $firstname, $lastname) {
+    private function enrrollTicketRequesterInLimeSurvey($email, $firstname, $lastname) {
         // Get config
         global $config;
         $server = $config->getServer();
@@ -55,10 +51,17 @@ class LimeSurveyPlugin extends Plugin {
         }
     }
 
+    // function handleTicketStatusChange($ticket, $status) {
+    //     if ($status === 'closed') {
+    //         Signal::send('ticket.close', $ticket);
+    //     }
+    // }
+
     function bootstrap() {
         global  $config;
-        global $ticket;
         $config = $this->getConfig();
+
+        // Signal::connect('ticket.setStatus', array($this, 'handleTicketStatusChange'));
 
         Signal::connect('ticket.closed', function($ticket){
             global $config;
