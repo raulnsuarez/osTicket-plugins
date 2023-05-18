@@ -34,12 +34,21 @@ class LimeSurveyConfig extends PluginConfig {
         return $this->get('passwd');
     }
 
+    public function getEvent() {
+        return $this->get('event');
+    }
+
+    public function getKey() {
+        return $this->get('KEY');
+    }
+
     public function getServerSettings() {
         $settings = [
             'domain'   => $this->getServer(),
             'surveyid'   => $this->getSurveyID(),
             'user'   => $this->getUser(),
             'passwd'    => $this->getPasswd(),
+            'event'    => $this->getEvent(),
             'scopes' => $scopes,
         ];
 
@@ -80,6 +89,23 @@ class LimeSurveyConfig extends PluginConfig {
                 'validator' => 'noop',
                 'hint' => $__("Password associated with the user account"),
                 'configuration' => array('size'=>40),
+            )),
+            'event' => new ChoiceField(array(
+                'label' => $__('Trigger Event'),
+                'hint' => $__("Event to trigger the Survey Enrollment process"),
+                'configuration' => array('size'=>40, 'length'=>120),
+                'default' => 'ticket.closed',
+                'choices' => array(
+                    'ticket.create' => 'Ticket Creation',
+                    'ticket.closed' => 'Ticket Closed',
+                ),
+            )),
+            'KEY' => new TextboxField(array(
+                'configuration' => array('size'=>40, 'length'=>120),
+                'visibility' => new VisibilityConstraint(
+                    new Q(),
+                    VisibilityConstraint::HIDDEN),
+                'default' => '1234567890',
             ))
         );
     }
@@ -93,12 +119,16 @@ class LimeSurveyConfig extends PluginConfig {
         $connection_error = false;
         $missing_settings = false;
 
+        if ($config['user'] and !$config['passwd']){
+            $config['passwd'] = Crypto::decrypt($this->getPasswd(), SECRET_SALT, $config['KEY']); 
+        }
+
         if (!$config['surveyid'])
             $this->getForm()->getField('surveyid')->addError(
                 $__("No Survey ID specified."));
 
         if ($config['domain'] && $config['user'] && $config['passwd'] && $config['surveyid']) {
-            $testJSONRPCClient = new JsonRPCClient( $config['domain'].'/index.php/admin/remotecontrol' );
+            $testJSONRPCClient = new JsonRPCClient( 'https://'.$config['domain'].'/index.php/admin/remotecontrol' );
             $sessionKey = $testJSONRPCClient->get_session_key( $config['user'], $config['passwd'] );
             if (is_array($sessionKey)){
                 if ($sessionKey['status']){
@@ -137,6 +167,7 @@ class LimeSurveyConfig extends PluginConfig {
 
         global $msg;
         if (!$errors)
+            $config['passwd'] = Crypto::encrypt($config['passwd'],SECRET_SALT, $config['KEY']);
             $msg = $__('Lime Survey configuration updated successfully');
 
         return !$errors;
