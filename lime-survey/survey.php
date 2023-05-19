@@ -13,10 +13,11 @@ require_once ('config.php');
 class LimeSurveyPlugin extends Plugin {
     var $config_class = 'LimeSurveyConfig';
     const PLUGIN_NAME = 'Automatic Surveys for Tickets';
+    var $surveyconfig;
 
     private function enrrollTicketRequesterInLimeSurvey($email, $firstname, $lastname) {
         // Get config
-        global $config;
+        $config = $this->$surveyconfig;
         $server = $config->getServer();
         $username = $config->getUser();
         $password = Crypto::decrypt($config->getPasswd(), SECRET_SALT, $config->getKey()); 
@@ -50,12 +51,15 @@ class LimeSurveyPlugin extends Plugin {
     }
 
     function bootstrap() {
-        global  $config;
+        //global $config;
         $config = $this->getConfig();
         $event = $config->getEvent();
+        $this->$surveyconfig = $config; 
+        // $instances = $this->getInstances($this->getIncludePath());
+        // throw new Exception(var_export($config, true));
 
         Signal::connect($event, function($ticket){
-            global $config;
+            //global $config;
             // Add the ticket requester as a participant in the survey
             $email = $ticket->getEmail()->getEmail();
             $name = $ticket->getName();
@@ -66,7 +70,7 @@ class LimeSurveyPlugin extends Plugin {
             // Save the survey response ID in the ticket metadata
             if ($result['status'] != 'ERROR'){
                 $ticket->LogNote(
-                    __('Enrollment in LimeSurvey #'. $config->getSurveyID()),
+                    __('Enrollment in LimeSurvey #'. $this->$surveyconfig->getSurveyID()),
                     __(json_encode($result['response'])),
                     self::PLUGIN_NAME,
                     FALSE
