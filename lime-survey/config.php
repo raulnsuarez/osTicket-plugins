@@ -96,7 +96,7 @@ class LimeSurveyConfig extends PluginConfig {
                 'configuration' => array('size'=>40, 'length'=>120),
                 'default' => 'ticket.closed',
                 'choices' => array(
-                    'ticket.create' => 'Ticket Creation',
+                    'ticket.created' => 'Ticket Created',
                     'ticket.closed' => 'Ticket Closed',
                 ),
             )),

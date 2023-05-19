@@ -44,10 +44,6 @@ class LimeSurveyPlugin extends Plugin {
         // Release the LimeSurvey API session key
         $client->release_session_key($sessionKey);
         return array('status'=> 'SESSION','response'=> $result);
-        // if ($result === null) {
-        //     return false;
-        // }else{
-        // }
     }
 
     function bootstrap() {
@@ -76,8 +72,12 @@ class LimeSurveyPlugin extends Plugin {
                     FALSE
                 );
             }else{
-                global $msg;
-                $msg = $__(json_encode($result['response']));
+                $ticket->LogNote(
+                    __('Enrollment in LimeSurvey #'. $this->$surveyconfig->getSurveyID()),
+                    __(json_encode($result['response'])),
+                    self::PLUGIN_NAME,
+                    FALSE
+                );
             }
             
         });
